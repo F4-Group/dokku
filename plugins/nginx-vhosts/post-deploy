@@ -3,6 +3,7 @@ set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 APP="$1"; PORT="$2"
 WILDCARD_SSL="$DOKKU_ROOT/tls"
 SSL="$DOKKU_ROOT/$APP/tls"
+NGINX_HTTP_PORT="8080"
 
 if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
   VHOST=$(< "$DOKKU_ROOT/VHOST")
@@ -30,8 +31,8 @@ EOF
   cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf
 upstream $APP { server 127.0.0.1:$PORT; }
 server {
-  listen      [::]:80;
-  listen      80;
+  listen      [::]:$NGINX_HTTP_PORT;
+  listen      $NGINX_HTTP_PORT;
   server_name $hostname;
   return 301 https://\$host\$request_uri;
 }
@@ -65,8 +66,8 @@ else
   cat<<EOF > $DOKKU_ROOT/$APP/nginx.conf
 upstream $APP { server 127.0.0.1:$PORT; }
 server {
-  listen      [::]:80;
-  listen      80;
+  listen      [::]:$NGINX_HTTP_PORT;
+  listen      $NGINX_HTTP_PORT;
   server_name $hostname;
   location    / {
     proxy_pass  http://$APP;
