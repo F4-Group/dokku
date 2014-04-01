@@ -5,6 +5,7 @@ WILDCARD_SSL="$DOKKU_ROOT/tls"
 SSL="$DOKKU_ROOT/$APP/tls"
 NGINX_HTTP_PORT="8080"
 TIMEOUTS="1h"
+MAX_SIZE="1024M"
 
 if [[ -f "$DOKKU_ROOT/VHOST" ]]; then
   VHOST=$(< "$DOKKU_ROOT/VHOST")
@@ -57,6 +58,11 @@ $SSL_DIRECTIVES
     proxy_set_header X-Forwarded-For \$remote_addr;
     proxy_set_header X-Forwarded-Port \$server_port;
     proxy_set_header X-Request-Start \$msec;
+    proxy_connect_timeout $TIMEOUTS;
+    proxy_send_timeout $TIMEOUTS;
+    proxy_read_timeout $TIMEOUTS;
+    send_timeout $TIMEOUTS;
+    client_max_body_size $MAX_SIZE;
   }
 }
 EOF
@@ -84,6 +90,7 @@ server {
     proxy_send_timeout $TIMEOUTS;
     proxy_read_timeout $TIMEOUTS;
     send_timeout $TIMEOUTS;
+    client_max_body_size $MAX_SIZE;
   }
 }
 EOF
